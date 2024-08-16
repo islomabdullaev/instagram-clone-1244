@@ -7,6 +7,7 @@ from general.choices import UserGenderType, UserRoleType
 class User(AbstractUser):
     first_name = models.CharField(max_length=24, null=True, blank=True)
     last_name = models.CharField(max_length=24, null=True, blank=True)
+    username = models.CharField(max_length=64, unique=True)
     phone = models.CharField(max_length=13, null=False, unique=True)
     role = models.CharField(
         max_length=24, default=UserRoleType.user.value,
