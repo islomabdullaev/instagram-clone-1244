@@ -8,14 +8,21 @@ from models.users import UserTable
 from sqlalchemy import select
 from schemas.users import UserCreateSchema, UserLoginSchema, UserSchema
 from sqlalchemy.exc import IntegrityError
+from descriptions.users import users_list_desc
 
 router = APIRouter(
     prefix="/auth",
     tags=['auth'])
 
-@router.get('/users')
-async def get_users(session: Session =  Depends(get_session)):
-    users = session.execute(select(UserTable)).scalars().all()
+@router.get('/users', response_model=list[UserSchema], description=users_list_desc)
+async def get_users(role: str = None, session: Session =  Depends(get_session)):
+    if not role:
+        users = session.execute(select(UserTable)).scalars().all()
+    else:
+        users = session.execute(select(UserTable).where(
+            UserTable.role == role
+        )).scalars().all()
+    
     return users
 
 @router.post('/signup', status_code=status.HTTP_201_CREATED)
