@@ -1,12 +1,10 @@
-from database import Base
-from sqlalchemy.orm import Mapped, mapped_column
+from base.models import BaseModel
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import date, datetime
 
 
-class UserTable(Base):
+class UserTable(BaseModel):
     __tablename__ = 'users_user'
-
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
 
     first_name: Mapped[str]
     last_name: Mapped[str]
@@ -21,3 +19,5 @@ class UserTable(Base):
     is_staff: Mapped[bool] = mapped_column(default=False)
     email: Mapped[str]
     date_joined: Mapped[date] = mapped_column(default=datetime.now)
+
+    posts: Mapped["PostTable"] = relationship(back_populates="posts")

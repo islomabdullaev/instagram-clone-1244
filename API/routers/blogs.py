@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from database import get_session
+from sqlalchemy import select
+from models.blogs import PostTable
 
 
 router = APIRouter(
@@ -8,6 +10,7 @@ router = APIRouter(
     tags=["blogs"])
 
 
-@router.get("/post")
+@router.get("/posts")
 async def get_posts(session: Session = Depends(get_session)):
-    return []
+    posts = session.execute(select(PostTable)).scalars().all()
+    return posts
