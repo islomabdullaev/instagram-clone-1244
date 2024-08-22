@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from general.choices import UserGenderType, UserRoleType
+from general.models import BaseModel
 
 # Create your models here.
 
-class User(AbstractUser):
+class User(AbstractUser, BaseModel):
     first_name = models.CharField(max_length=24, null=True, blank=True)
     last_name = models.CharField(max_length=24, null=True, blank=True)
     username = models.CharField(max_length=64, unique=True)
