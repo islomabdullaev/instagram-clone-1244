@@ -20,4 +20,4 @@ class UserTable(BaseModel):
     email: Mapped[str]
     date_joined: Mapped[date] = mapped_column(default=datetime.now)
 
-    posts: Mapped["PostTable"] = relationship(back_populates="posts")
+    posts: Mapped["PostTable"] = relationship(back_populates="user")

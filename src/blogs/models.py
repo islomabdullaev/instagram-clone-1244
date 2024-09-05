@@ -6,7 +6,7 @@ from django.db import models
 class Post(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField()
-    file = models.FileField(upload_to="posts/files")
+    file = models.FileField(upload_to="posts/files", null=True, blank=True)
 
     class Meta:
         verbose_name = "Post"
