@@ -9,3 +9,8 @@ class PostResponseSchema(BaseModel):
     comments: list | None = None
     likes: list | None = None
     user: UserSchema
+
+
+class PostCommentCreateSchema(BaseModel):
+    post_id: int
+    text: str

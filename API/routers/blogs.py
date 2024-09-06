@@ -1,14 +1,16 @@
 import aiofiles
-from fastapi import APIRouter, Depends, status, File, UploadFile, Form
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, status, File, UploadFile, Form, HTTPException, Response
+from sqlalchemy.orm import Session, selectinload
 from dependencies.users.user import UserHandling
 from schemas.users import UserSchema
 from models.users import UserTable
-from schemas.blogs import PostResponseSchema
+from schemas.blogs import PostResponseSchema, PostCommentCreateSchema
 from database import get_session
 from sqlalchemy import select
-from models.blogs import PostTable
+from models.blogs import PostTable, PostCommentTable
 from directories.posts import create_dir as post_create_dir
+from fastapi.responses import JSONResponse
+
 
 
 router = APIRouter(
@@ -16,12 +18,14 @@ router = APIRouter(
     tags=["blogs"])
 
 
-@router.get("/posts", response_model=list[PostResponseSchema])
+@router.get("/posts")
 async def get_posts(session: Session = Depends(get_session)):
 
     posts = session.execute(
-        select(PostTable).join(UserTable)).scalars().all()
-    
+        select(PostTable).options(
+            selectinload(PostTable.comments)
+        ).join(UserTable)).scalars().all()
+    print(posts)
     return posts
 
 
@@ -53,3 +57,32 @@ async def create_posts(
     return {
         "message": "Created !"
     }
+
+
+@router.post("/posts/comments")
+async def create_posts(
+    data: PostCommentCreateSchema,
+    user: UserSchema = Depends(UserHandling().user),
+    session: Session = Depends(get_session)):
+
+    post = session.execute(
+        select(PostTable).where(PostTable.id == data.post_id)
+        ).scalar()
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Post does not exist !")
+
+    comment = PostCommentTable(
+        post_id=post.id,
+        user_id=user.id,
+        text=data.text
+    )
+    
+    session.add(comment)
+    session.commit()
+    session.refresh(comment)
+
+    return JSONResponse(content={
+        "message": "Created Successfully !"
+    }, status_code=status.HTTP_201_CREATED)
